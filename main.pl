@@ -23,7 +23,17 @@ compararListas([X|Xs], [Y|Ys]):- X=Y, compararListas(Xs, Ys).
 generarX([[X, _, 1]], [X]).
 generarX([[X,_,1]|Resto], [X|Y]):-generarX(Resto, Y).
 
+
+esMiembro(M, [M|_]).
+esMiembro(M, [M]).
+esMiembro(M, [L|Ls]):- esMiembro(M, Ls) ; M=L.
+
+seRepite([M, M]).
+seRepite([L|Ls]):- esMiembro(L, Ls) ; seRepite(Ls).
+
 largoLista([], 0).
 largoLista([_|Xs], N):- largoLista(Xs, N1), N is N1+1.
 
 createScene(N, M, E, D, Seed, Scene):-random(1, Seed, ID), escenario(ID, N, M, _, Eq2, _, Scene), E = L, largoLista(Eq2, L).
+
+
