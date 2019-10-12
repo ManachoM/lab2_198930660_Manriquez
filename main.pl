@@ -35,5 +35,6 @@ largoLista([], 0).
 largoLista([_|Xs], N):- largoLista(Xs, N1), N is N1+1.
 
 createScene(N, M, E, D, Seed, Scene):-random(1, Seed, ID), escenario(ID, N, M, _, Eq2, _, Scene), E = L, largoLista(Eq2, L).
+checkScene(Scene):- escenario(_,_,_,_,_,_,Scene) ; (Scene is [_, N, M, Eq1, Eq2, p], N>0, M>0, not(seRepite(L)), append(X1, X2, L), generarX(Eq1, X1), generarX(Eq2, X2), M>=L1+L2, length(Eq1, L1), length(Eq2, L2)).
 
 
