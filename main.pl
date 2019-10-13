@@ -8,10 +8,17 @@
     %Lista de personajes del computador: lista que contiene datos tipo personaje que pertenecen al equipo del computador
     %Par que contiene coordenadas de proyectil, de existir uno.
 
+getIdEscena(Scene, Id):- nth0(0, Scene, Id).
+getNEscenario(Scene, N):-nth0(1, Scene, N).
+getMEscenario(Scene, M):-nth0(2, Scene, M).
+getEq1Escenario(Scene, Eq1):-nth0(3, Scene, Eq1).
+getEq2Escenario(Scene, Eq2):- nth0(4, Scene, Eq2).
+
 
 
 %TDA: Personaje
 %Representacion: [Posicion X, Posicion Y, Vida]
+%Dominios: X, Y y Vida son todos enteros positivos
 personaje(X, Y, V, Personaje):- X>0, Y>0, V > -1, Personaje = [X,Y,V].
 esPersonaje(Personaje):- nth0(0, Personaje, X), nth0(1, Personaje, Y), nth0(2, Personaje, V), X > 0, Y > 0, V > -1.
 getXPersonaje(Personaje, X):- nth0(0, Personaje, X).
@@ -25,15 +32,17 @@ setVidaPersonaje(NewV, Personaje, NewPersonaje):- NewV > -1, getXPersonaje(Perso
 
 
 
-
 %Base de conocimientos
 %escenario(Id, N, M, Eq1, Eq2, P, [Lista con representacion]).
-escenario(1, 5, 10, [[1, 2, 1], [2, 2, 1], [3, 2, 1]], [[8, 2, 1], [9, 2, 1]], [], [1, 5, 10, [[1, 2, 1], [2, 2, 1], [3, 2, 1]], [[8, 2, 1], [9, 2, 1]], []]).
+escenario(1, 5, 10, [[1, 2, 1], [2, 2, 1], [3, 2, 1]], [[8, 2, 1], [9, 2, 1]], [], 12).
 escenario(2, 5, 10, [[2, 4, 1], [3, 4, 1], [4, 4, 1]], [[7, 4, 1], [8, 4, 1], [9, 4, 1], [10, 4, 1]], [],[2, 5, 10, [[2, 4, 1], [3, 4, 1], [4, 4, 1]], [[7, 4, 1], [8, 4, 1], [9, 4, 1], [10, 4, 1]], []]).
 escenario(3, 5, 10, [[1, 1, 1], [3, 1, 1], [5, 1, 1]], [[6, 1, 1], [7, 1, 1], [8, 1, 1], [9, 1, 1], [10, 1, 1]], [], [3, 5, 10, [[1, 1, 1], [3, 1, 1], [5, 1, 1]], [[6, 1, 1], [7, 1, 1], [8, 1, 1], [9, 1, 1], [10, 1, 1]], []]).
 escenario(4, 10, 12, [[2, 5, 1], [4, 5, 1], [6, 5, 1]], [[8, 5, 1], [9, 5, 1], [10, 5, 1], [11, 5, 1]], [], [4, 10, 12, [[2, 5, 1], [4, 5, 1], [6, 5, 1]], [[8, 5, 1], [9, 5, 1], [10, 5, 1], [11, 5, 1]], []]).
 escenario(5, 10, 12, [[1, 7, 1], [2, 7, 1], [4, 7, 1]], [[5, 7, 1], [6, 7, 1], [8, 7, 1], [9, 7, 1], [10, 7, 1], [12, 7, 1]], [], [5, 10, 12, [[1, 7, 1], [2, 7, 1], [4, 7, 1]], [[5, 7, 1], [6, 7, 1], [8, 7, 1], [9, 7, 1], [10, 7, 1], [12, 7, 1]], []]).
 escenario(6, 20, 20, [[2, 12, 1], [5, 12, 1], [7, 12, 1]], [[10, 12, 1], [12, 12, 1], [13, 12, 1], [14, 12, 1], [15, 12, 1], [17, 12 , 1], [18, 12 , 1], [19, 12, 1]], [], [6, 20, 20, [[2, 12, 1], [5, 12, 1], [7, 12, 1]], [[10, 12, 1], [12, 12, 1], [13, 12, 1], [14, 12, 1], [15, 12, 1], [17, 12 , 1], [18, 12 , 1], [19, 12, 1]], []]).
+
+
+
 
 compararListas([A], [B]):- A=B.
 compararListas([X|Xs], [Y|Ys]):- X=Y, compararListas(Xs, Ys). 
