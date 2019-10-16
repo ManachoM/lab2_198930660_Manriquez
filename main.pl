@@ -8,6 +8,7 @@
     %Lista de personajes del computador: lista que contiene datos tipo personaje que pertenecen al equipo del computador
     %Par que contiene coordenadas de proyectil, de existir uno.
 
+escenario(Id, N, M, Eq1, Eq2, Pr, Scene):- Scene=[Id, N, M, Eq1, Eq2, Pr].
 getIdEscena(Scene, Id):- nth0(0, Scene, Id).
 getNEscenario(Scene, N):-nth0(1, Scene, N).
 getMEscenario(Scene, M):-nth0(2, Scene, M).
@@ -15,7 +16,7 @@ getEq1Escenario(Scene, Eq1):-nth0(3, Scene, Eq1).
 getEq2Escenario(Scene, Eq2):- nth0(4, Scene, Eq2).
 
 %TDA: Proyectil
-%Representacion: [Posicion X, Posicion Y, Tiempo, Angle]
+%Representacion: [Posicion X inicial, Posicion Y inicial, Tiempo, Angle]
 %Dominios: Todos los elementos son enteros positivos
 proyectil(X,Y,T,Angle, P):-T>=0, Angle>=0, P=[X,Y,T,Angle].
 getXPr(P, X):- nth0(0, P, X).
@@ -25,7 +26,7 @@ getAnglePr(P, Angle):- nth0(3, P, Angle).
 setXPr(Pin, NewX, Pout):- getYPr(Pin, Y), getTPr(Pin, T), getAnglePr(Pin, Angle), proyectil(NewX, Y, T, Angle, Pout).
 setYPr(Pin, NewY, Pout):- getXPr(Pin, X), getTPr(Pin, T), getAnglePr(Pin, Angle), proyectil(X, NewY, T, Angle, Pout).
 setTPr(Pin, NewT, Pout):- getXPr(Pin, X), getYPr(Pin, Y), getAnglePr(Pin, Angle), proyectil(X, Y, NewT, Angle, Pout).
-updatePr(Pin, T, Pout):- getAnglePr(Pin, Angle), NewX is floor((5*cos(Angle)*T)), NewY is floor((5*sin(Angle)*T - 5*T*T)), proyectil(NewX, NewY, T, Angle, Pout).
+updatePr(Pin, T, Pos):-getXPr(Pin, X), getYPr(Pin, Y),getAnglePr(Pin, Angle), NewX is round(X+(3.3*cos(Angle)*T)), NewY is round(Y+(3.3*sin(Angle)*T - 2.5*T*T)), Pos=[NewX, NewY].
 initPr(Personaje, Angle,Pout):- getXPersonaje(Personaje, X), getYPersonaje(Personaje, Y), Angle>0, proyectil(X, Y, 0, Angle, Pout).
 
 
@@ -45,7 +46,7 @@ setVidaPersonaje(NewV, Personaje, NewPersonaje):- NewV > -1, getXPersonaje(Perso
 
 %Base de conocimientos
 %escenario(Id, N, M, Eq1, Eq2, P, [Lista con representacion]).
-escenario(1, 5, 10, [[1, 2, 1], [2, 2, 1], [3, 2, 1]], [[8, 2, 1], [9, 2, 1]], [], 12).
+escenario(1, 5, 10, [[1, 2, 1], [2, 2, 1], [3, 2, 1]], [[8, 2, 1], [9, 2, 1]], [], [1, 5, 10, [[1, 2, 1], [2, 2, 1], [3, 2, 1]], [[8, 2, 1], [9, 2, 1]], []]).
 escenario(2, 5, 10, [[2, 4, 1], [3, 4, 1], [4, 4, 1]], [[7, 4, 1], [8, 4, 1], [9, 4, 1], [10, 4, 1]], [],[2, 5, 10, [[2, 4, 1], [3, 4, 1], [4, 4, 1]], [[7, 4, 1], [8, 4, 1], [9, 4, 1], [10, 4, 1]], []]).
 escenario(3, 5, 10, [[1, 1, 1], [3, 1, 1], [5, 1, 1]], [[6, 1, 1], [7, 1, 1], [8, 1, 1], [9, 1, 1], [10, 1, 1]], [], [3, 5, 10, [[1, 1, 1], [3, 1, 1], [5, 1, 1]], [[6, 1, 1], [7, 1, 1], [8, 1, 1], [9, 1, 1], [10, 1, 1]], []]).
 escenario(4, 10, 12, [[2, 5, 1], [4, 5, 1], [6, 5, 1]], [[8, 5, 1], [9, 5, 1], [10, 5, 1], [11, 5, 1]], [], [4, 10, 12, [[2, 5, 1], [4, 5, 1], [6, 5, 1]], [[8, 5, 1], [9, 5, 1], [10, 5, 1], [11, 5, 1]], []]).
@@ -61,6 +62,9 @@ compararListas([X|Xs], [Y|Ys]):- X=Y, compararListas(Xs, Ys).
 generarX([[X, _, 1]], [X]).
 generarX([[X,_,1]|Resto], [X|Y]):-generarX(Resto, Y).
 
+generarPos([[X, Y, 1]], [[X,Y]]).
+generarPos([[X,Y,1]|Cola], [[X,Y]|Resto]):- generarPos(Cola, Resto).
+
 replace(_, _, [], []).
 replace(O, R, [O|T], [R|T2]) :- replace(O, R, T, T2).
 replace(O, R, [H|T], [H|T2]) :- H \= O, replace(O, R, T, T2).
@@ -75,13 +79,16 @@ seRepite([L|Ls]):- esMiembro(L, Ls) ; seRepite(Ls).
 largoLista([], 0).
 largoLista([_|Xs], N):- largoLista(Xs, N1), N is N1+1.
 
+posCaida(Pr, Pos):- getAnglePr(Pr, Angle), Tmax is (1.32*sin(Angle)), updatePr(Pr, Tmax, Pos).
 
 
-createScene(N, M, E, D, Seed, Scene):-random(1, Seed, ID),
+createScene(N, M, E, D, Seed, Scene):- 
+random(1, Seed, ID),
     escenario(ID, N, M, _, Eq2, _, Scene), 
     E = L, 
     largoLista(Eq2, L).
-checkScene(Scene):- escenario(_,_,_,_,_,_,Scene) ;
+checkScene(Scene):- 
+escenario(_,_,_,_,_,_,Scene) ;
      (
       nth0(1, Scene, N),
       nth0(2, Scene, M),
@@ -121,4 +128,19 @@ moveMember(SceneIn, Member, MoveDir, _, SceneOut):-
 
 
 
+shoot(SceneIn, Member, _, Angle, _, SceneOut):-
+ getNEscenario(SceneIn, N),
+ getMEscenario(SceneIn, M),
+ getEq1Escenario(SceneIn, Eq1),
+ getEq2Escenario(SceneIn, Eq2),
+ nth0(Member, Eq1, Prje),
+ initPr(Prje, Angle, Pr),
+ generarPos(Eq2, X2), 
+ posCaida(Pr, Pos),
+ member(Pos, X2),
+ nth0(0, Pos, X),
+ nth0(1, Pos, Y),
+ replace([X,Y,1], [X,Y,0], Eq2, NewEq2),
+ escenario(0, N, M, Eq1, NewEq2, [], SceneOut);
+ SceneOut = SceneIn.
 
