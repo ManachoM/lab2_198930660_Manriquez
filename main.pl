@@ -47,6 +47,8 @@ setYPersonaje(NewY, Personaje, NewPersonaje):- NewY>0, getXPersonaje(Personaje, 
 setVidaPersonaje(NewV, Personaje, NewPersonaje):- NewV > -1, getXPersonaje(Personaje, X), getYPersonaje(Personaje, Y), personaje(X, Y, NewV, NewPersonaje).
 
 
+%CLAUSLAS
+
 
 %Base de conocimientos
 %escenario(Id, N, M, Eq1, Eq2, P, [Lista con representacion]).
@@ -58,7 +60,7 @@ escenario(5, 10, 12, [[1, 7, 1], [2, 7, 1], [4, 7, 1]], [[5, 7, 1], [6, 7, 1], [
 escenario(6, 20, 20, [[2, 12, 1], [5, 12, 1], [7, 12, 1]], [[10, 12, 1], [12, 12, 1], [13, 12, 1], [14, 12, 1], [15, 12, 1], [17, 12 , 1], [18, 12 , 1], [19, 12, 1]], [], 3, "PLAYING", 0,[6, 20, 20, [[2, 12, 1], [5, 12, 1], [7, 12, 1]], [[10, 12, 1], [12, 12, 1], [13, 12, 1], [14, 12, 1], [15, 12, 1], [17, 12 , 1], [18, 12 , 1], [19, 12, 1]], [], 3, "PLAYING", 0]).
 
 
-
+%Reglas con sus respectivos casos bases
 
 compararListas([A], [B]):- A=B.
 compararListas([X|Xs], [Y|Ys]):- X=Y, compararListas(Xs, Ys). 
@@ -105,6 +107,11 @@ state(Eq1, Eq2, State):-
     State="DRAW".
 
 score(Eq1, Eq2, Score):- cuantosMuertos(Eq2, S1), cuantosMuertos(Eq1, S2), Score is S1-S2.
+
+quienDispara([[A,B,1]], Pos):- Pos = [A,B,1].
+quienDispara([[_,_,0]], Pos):- Pos = [0,0,0].
+quienDispara([[X,Y,1]|_], Pos):- Pos = [X,Y,1].
+quienDispara([[_,_,0]|Cola], Pos):- quienDispara(Cola, Pos).
 
 
 createScene(N, M, E, D, Seed, Scene):- 
@@ -175,6 +182,28 @@ shoot(SceneIn, Member, _, Angle, _, SceneOut):-
     escenario(0, N, M, Eq1, NewEq2, [], D, State, Score,SceneOut);
     SceneOut = SceneIn.
 
+shootBack(SceneIn, SceneOut):-
+    getNEscenario(SceneIn, N),
+    getMEscenario(SceneIn, M),
+    getEq1Escenario(SceneIn, Eq1),
+    getEq2Escenario(SceneIn, Eq2),
+    getDEscenario(SceneIn, D),
+    quienDispara(Eq2, Prje),
+    random(1.5707963, 3.1415926, Angle),
+    initPr(Prje, Angle, Pr),
+    generarPos(Eq1, X1),
+    posCaida(Pr, Pos),
+    member(Pos, X1),
+    nth0(0, Pos, X),
+    nth0(1, Pos, Y),
+    replace([X,Y,1], [X,Y,0], Eq1, NewEq1),
+    state(NewEq1, Eq2, State),
+    score(NewEq1, Eq2, Score),
+    escenario(0,N,M,NewEq1,Eq2,[],D,State,Score,SceneOut);
+    SceneOut=SceneIn.
+    
+
+
 updateScene(SceneIn, _, SceneOut):- 
     getNEscenario(SceneIn, N),
     getMEscenario(SceneIn, M),
@@ -214,3 +243,9 @@ updateScene(SceneIn, _, SceneOut):-
     getScoreEscenario(SceneIn, Score),
     escenario(0, N, M, Eq1, Eq2, NewPr, D, State, Score, SceneOut);
     SceneOut = SceneIn.
+
+
+play(SceneIn, Member, MoveDir, _, Angle, _, SceneOut):- 
+    moveMember(SceneIn, Member, MoveDir, 12, Scene1),
+    shoot(Scene1, Member, 123123, Angle, 123, Scene2),
+    shootBack(Scene2, SceneOut).
