@@ -58,8 +58,9 @@ escenario(6, 20, 20, [[2, 12, 1], [5, 12, 1], [7, 12, 1]], [[10, 12, 1], [12, 12
 
 
 %TDA: Escenario
-%Representacion:  [ID; N; M; [Listas de personajes del jugador]; [Lista de personajes del computador]; [Par ordenado que da trayectoria de proyectil]; Dificultad; State; Score;]
-%Personaje: [X; Y; Vida]
+%Representacion:    [ID; N; M; [Listas de personajes del jugador]; 
+%                   [Lista de personajes del computador]; [Par ordenado que da trayectoria de proyectil]; 
+%                   Dificultad; State; Score;]
 %Dominios:
     %ID: Entero que representa al tablero
     %N, M: entero positivo, filas y columnas, respectivamente, del tablero en cuestion
